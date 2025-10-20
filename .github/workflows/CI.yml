@@ -33,6 +33,9 @@ jobs:
         with:
           version: 0.14.1
 
+      - name: Create Lock File
+        run:  uv lock
+
       - name: Install the project and deps
         run:  uv sync --locked --all-extras --dev
       
