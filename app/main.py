@@ -1,32 +1,38 @@
 from typing import Annotated
 
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
+
+fake_secret_token = 'coneofsilence'
+
+fake_db = {
+	'foo': {'id': 'foo', 'title': 'Foo', 'description': 'There goes my hero'},
+	'bar': {'id': 'bar', 'title': 'Bar', 'description': 'The bartenders'},
+}
 
 app = FastAPI()
 
 
 class Item(BaseModel):
-	name: str
+	id: str
+	title: str
 	description: str | None = None
-	price: float
-	tax: float | None = None
 
 
-@app.put('/items/{item_id}')
-async def update_item(
-	item_id: Annotated[int, Path(title='The ID of the item to get', ge=0, le=1000)],
-	q: str | None = None,
-	item: Item | None = None,
-):
-	results = {'item_id': item_id}
-	if q:
-		results.update({'q': q})
-	if item:
-		results.update({'item': item})
-	return results
+@app.get('/items/{item_id}', response_model=Item)
+async def read_main(item_id: str, x_token: Annotated[str, Header()]):
+	if x_token != fake_secret_token:
+		raise HTTPException(status_code=400, detail='Invalid X-Token header')
+	if item_id not in fake_db:
+		raise HTTPException(status_code=404, detail='Item not found')
+	return fake_db[item_id]
 
 
-@app.get('/')
-async def root():
-	return {'message': 'Hello Bigger Applications AND MORE STUFFF!'}
+@app.post('/items/', response_model=Item)
+async def create_item(item: Item, x_token: Annotated[str, Header()]):
+	if x_token != fake_secret_token:
+		raise HTTPException(status_code=400, detail='Invalid X-Token header')
+	if item.id in fake_db:
+		raise HTTPException(status_code=409, detail='Item already exists')
+	fake_db[item.id] = item
+	return item
