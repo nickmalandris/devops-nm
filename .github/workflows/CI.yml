@@ -19,28 +19,34 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    env:
+      UV_PYTHON: 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v5
 
       - name: Install UV
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
+          version-file: pyproject.toml
           enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+          cache-python: true
+          # python-version: ${{ matrix.python-version }}
+
           
       - name: Ruff for Linting
         uses: astral-sh/ruff-action@v3
         with:
           version-file: pyproject.toml
-          args: check --output-format=github
+          args: check --output-format=github --config pyproject.toml
 
       - name: Ruff for Formatting
         uses: astral-sh/ruff-action@v3
         with:
           version-file: pyproject.toml
-          args: format
+          args: format --config pyproject.toml
 
       - name: Create Lock File
         run:  uv lock
@@ -52,4 +58,8 @@ jobs:
         run: uv cache prune --ci
 
       - name: Run Pytests
-        run: uv run pytest app/test_main.py
+        run: uv run pytest app/test_main.py 
+        # --doctest-modules --junitxml=junit/test-results-${{ matrix.python-version }}.xml
+      - name: Check environment variables
+        run: |
+          echo "UV_PYTHON: $UV_PYTHON"
