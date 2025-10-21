@@ -27,19 +27,26 @@ jobs:
 
       - name: Install UV
         uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       
-      - name: Ruff for Linting and formatting
+      - name: Ruff for Linting
         uses: astral-sh/ruff-action@v3
         with:
-          # version: 0.14.1
           version-file: pyproject.toml
           args: check --output-format=github
+
+      - name: Ruff for Formatting
+        uses: astral-sh/ruff-action@v3
+        with:
+          version-file: pyproject.toml
+          args: format
 
       - name: Create Lock File
         run:  uv lock
 
       - name: Install the project and deps
         run:  uv sync --locked --all-extras --dev
-      
+
       - name: Run Pytests
         run: uv run pytest app/test_main.py
