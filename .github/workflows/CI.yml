@@ -29,10 +29,12 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v7
         with:
-          version-file: pyproject.toml
+          version-file: latest
           enable-cache: true
           cache-dependency-glob: "**/pyproject.toml"
           cache-python: true
+          # python-version: ${{ matrix.python-version }}
+
           
       - name: Ruff for Linting
         uses: astral-sh/ruff-action@v3
