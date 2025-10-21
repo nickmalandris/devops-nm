@@ -62,6 +62,11 @@ jobs:
 
       - name: Run Pytests
         run: uv run pytest app/test_main.py --doctest-modules --junitxml=junit/test-results-${{ steps.python-setup.outputs.python-version }}.xml
-      - name: Check environment variables
-        run: |
-          echo "UV_PYTHON: $UV_PYTHON"
+
+      - name: Upload pytest test results
+        uses: actions/upload-atrifact@v4
+        with:
+          name: pytest-result-${{ steps.python-setup.outputs.python-version }}
+          path: junit/test-results-${{ steps.python-setup.outputs.python-version }}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
