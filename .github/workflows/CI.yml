@@ -64,7 +64,7 @@ jobs:
         run: uv run pytest app/test_main.py --doctest-modules --junitxml=junit/test-results-${{ steps.python-setup.outputs.python-version }}.xml
 
       - name: Upload pytest test results
-        uses: actions/upload-atrifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-result-${{ steps.python-setup.outputs.python-version }}
           path: junit/test-results-${{ steps.python-setup.outputs.python-version }}.xml
