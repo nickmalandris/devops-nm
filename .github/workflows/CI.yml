@@ -33,7 +33,7 @@ jobs:
         with:
           # version: 0.14.1
           version-file: pyproject.toml
-          args: check --output-format=github && ruff format
+          args: check --output-format=github
 
       - name: Create Lock File
         run:  uv lock
